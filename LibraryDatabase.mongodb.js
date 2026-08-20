@@ -33,3 +33,24 @@ db.createCollection("users", {
 });
 db.users.createIndex({ user_id: 1 }, { unique: true });
 db.users.createIndex({ email: 1 }, { unique: true });
+
+db.createCollection("borrow_records", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: ["borrow_id", "user_id", "book_id", "borrow_date", "status", "late_fee"],
+      properties: {
+        borrow_id: { bsonType: "string" },
+        user_id: { bsonType: "string" },
+        book_id: { bsonType: "string" },
+        borrow_date: { bsonType: "date" },
+        return_date: { bsonType: ["date", "null"] },
+        status: { enum: ["borrowed", "returned"] },
+        late_fee: { bsonType: ["double", "int"], minimum: 0 }
+      }
+    }
+  }
+});
+db.borrow_records.createIndex({ borrow_id: 1 }, { unique: true });
+db.borrow_records.createIndex({ user_id: 1, status: 1 });
+db.borrow_records.createIndex({ book_id: 1, status: 1 });
