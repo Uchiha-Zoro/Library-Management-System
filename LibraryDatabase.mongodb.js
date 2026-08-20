@@ -16,3 +16,20 @@ db.createCollection("books", {
     }
   }
 });
+db.books.createIndex({ book_id: 1 }, { unique: true });
+
+db.createCollection("users", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: ["user_id", "name", "email"],
+      properties: {
+        user_id: { bsonType: "string" },
+        name: { bsonType: "string" },
+        email: { bsonType: "string", pattern: "^.+@.+\\..+$" }
+      }
+    }
+  }
+});
+db.users.createIndex({ user_id: 1 }, { unique: true });
+db.users.createIndex({ email: 1 }, { unique: true });
