@@ -73,7 +73,7 @@ db.createCollection("sales_transactions", {
 });
 db.sales_transactions.createIndex({ transaction_id: 1 }, { unique: true });
 db.sales_transactions.createIndex({ user_id: 1 });
- 
+
 db.books.insertMany([
   {
     book_id: "BK001",
