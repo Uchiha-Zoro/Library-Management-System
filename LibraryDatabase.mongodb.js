@@ -252,3 +252,13 @@ function purchaseBook(transaction_id, user_id, book_id) {
     const db1 = session.getDatabase("library_management_system");
     const booksColl = db1.books;
     const salesColl = db1.sales_transactions;
+
+    const book = booksColl.findOne({
+      book_id: book_id,
+      is_for_sale: true,
+      available_copies: { $gt: 0 }
+    });
+ 
+    if (!book) {
+      throw new Error("Book not available for sale or out of stock.");
+    }
