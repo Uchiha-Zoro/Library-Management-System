@@ -272,4 +272,43 @@ function purchaseBook(transaction_id, user_id, book_id) {
       transaction_date: new Date()
     }); 
 
+
+    const paymentSuccessful = true;
+ 
+    if (paymentSuccessful) {
+      const inventoryResult = booksColl.updateOne(
+        { book_id: book_id, available_copies: { $gt: 0 } },
+        { $inc: { available_copies: -1 } }
+      );
+ 
+      if (inventoryResult.modifiedCount === 0) {
+        throw new Error("Inventory changed concurrently; rolling back transaction.");
+      }
+ 
+      salesColl.updateOne(
+        { transaction_id: transaction_id },
+        { $set: { payment_status: "completed" } }
+      );
+ 
+      session.commitTransaction();
+      print(`Purchase completed. Transaction ${transaction_id} for book ${book_id}.`);
+    } else {
+      salesColl.updateOne(
+        { transaction_id: transaction_id },
+        { $set: { payment_status: "failed" } }
+      );
+      session.commitTransaction(); // commit the "failed" status record, no inventory change
+      print(`Payment failed for transaction ${transaction_id}.`);
+    }
+  } catch (err) {
+    session.abortTransaction();
+    print(`Purchase transaction aborted: ${err.message}`);
+  } finally {
+    session.endSession();
+  }
+}
+
     
+ 
+
+
