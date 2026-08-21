@@ -54,3 +54,23 @@ db.createCollection("borrow_records", {
 db.borrow_records.createIndex({ borrow_id: 1 }, { unique: true });
 db.borrow_records.createIndex({ user_id: 1, status: 1 });
 db.borrow_records.createIndex({ book_id: 1, status: 1 });
+
+db.createCollection("sales_transactions", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: ["transaction_id", "user_id", "book_id", "amount", "payment_status", "transaction_date"],
+      properties: {
+        transaction_id: { bsonType: "string" },
+        user_id: { bsonType: "string" },
+        book_id: { bsonType: "string" },
+        amount: { bsonType: ["double", "int"], minimum: 0 },
+        payment_status: { enum: ["pending", "completed", "failed"] },
+        transaction_date: { bsonType: "date" }
+      }
+    }
+  }
+});
+db.sales_transactions.createIndex({ transaction_id: 1 }, { unique: true });
+db.sales_transactions.createIndex({ user_id: 1 });
+ 
