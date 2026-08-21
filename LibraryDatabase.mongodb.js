@@ -74,3 +74,52 @@ db.createCollection("sales_transactions", {
 db.sales_transactions.createIndex({ transaction_id: 1 }, { unique: true });
 db.sales_transactions.createIndex({ user_id: 1 });
  
+db.books.insertMany([
+  {
+    book_id: "BK1001",
+    title: "One Piece",
+    author: "Echiro Oda",
+    available_copies: 5,
+    is_for_sale: true,
+    purchase_price: 650
+  },
+  {
+    book_id: "BK1002",
+    title: "The Art Of War",
+    author: "Sun Tzu",
+    available_copies: 4,
+    is_for_sale: true,
+    purchase_price: 760
+  },
+  {
+    book_id: "BK100",
+    title: "Arthashastra",
+    author: "Chnakya",
+    available_copies: 2,
+    is_for_sale: false,
+    purchase_price: 0
+  }
+]);
+ 
+db.users.insertMany([
+  {
+    user_id: "U2001",
+    name: "Vansh",
+    email: "vp@example.com"
+  },
+  {
+    user_id: "U2002",
+    name: "Smit",
+    email: "sm@example.com"
+  },
+  {
+    user_id: "U2003",
+    name: "Vaibhav",
+    email: "vb@example.com"
+  },
+  {
+    user_id: "U2004",
+    name: "Mehul",
+    email: "mh@example.com"
+  }
+]);
