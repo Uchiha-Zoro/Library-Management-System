@@ -123,3 +123,39 @@ db.users.insertMany([
     email: "mh@example.com"
   }
 ]);
+
+function borrowBook(borrow_id, user_id, book_id) {
+  const session = db.getMongo().startSession();
+  try {
+    session.startTransaction();
+    const booksColl = session.getDatabase("library_management_system").books;
+    const borrowColl = session.getDatabase("library_management_system").borrow_records;
+    const bookUpdate = booksColl.findOneAndUpdate(
+      { book_id: book_id, available_copies: { $gt: 0 } },
+      { $inc: { available_copies: -1 } },
+      { returnDocument: "after" }
+    );
+ 
+    if (!bookUpdate) {
+      throw new Error("Book unavailable for borrowing (no copies left).");
+    }
+ 
+    borrowColl.insertOne({
+      borrow_id: borrow_id,
+      user_id: user_id,
+      book_id: book_id,
+      borrow_date: new Date(),
+      return_date: null,
+      status: "borrowed",
+      late_fee: 0
+    });
+ 
+    session.commitTransaction();
+    print(`Book ${book_id} borrowed successfully by ${user_id}.`);
+  } catch (err) {
+    session.abortTransaction();
+    print(`Borrow failed: ${err.message}`);
+  } finally {
+    session.endSession();
+  }
+}
