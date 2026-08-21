@@ -240,3 +240,15 @@ function returnBook(borrow_id) {
     session.endSession();
   }
 }
+
+function purchaseBook(transaction_id, user_id, book_id) {
+  const session = db.getMongo().startSession();
+  try {
+    session.startTransaction({
+      readConcern: { level: "snapshot" },
+      writeConcern: { w: "majority" }
+    });
+ 
+    const db1 = session.getDatabase("library_management_system");
+    const booksColl = db1.books;
+    const salesColl = db1.sales_transactions;
