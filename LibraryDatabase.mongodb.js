@@ -249,7 +249,7 @@ function purchaseBook(transaction_id, user_id, book_id) {
       writeConcern: { w: "majority" }
     });
  
-    const db1 = session.getDatabase("library_management_system");
+    const db1 = session.getDatabase("Library");
     const booksColl = db1.books;
     const salesColl = db1.sales_transactions;
 
@@ -262,3 +262,14 @@ function purchaseBook(transaction_id, user_id, book_id) {
     if (!book) {
       throw new Error("Book not available for sale or out of stock.");
     }
+
+    salesColl.insertOne({
+      transaction_id: transaction_id,
+      user_id: user_id,
+      book_id: book_id,
+      amount: book.purchase_price,
+      payment_status: "pending",
+      transaction_date: new Date()
+    }); 
+
+    
