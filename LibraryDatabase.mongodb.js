@@ -159,3 +159,41 @@ function borrowBook(borrow_id, user_id, book_id) {
     session.endSession();
   }
 }
+
+db.borrow_records.aggregate([
+  { $match: { status: "borrowed" } },
+  {
+    $addFields: {
+      days_held: {
+        $dateDiff: {
+          startDate: "$borrow_date",
+          endDate: "$$NOW",
+          unit: "day"
+        }
+      }
+    }
+  },
+  {
+    $addFields: {
+      overdue_days: {
+        $max: [ { $subtract: ["$days_held", 30] }, 0 ]
+      }
+    }
+  },
+  {
+    $addFields: {
+      calculated_late_fee: { $multiply: ["$overdue_days", 20] }
+    }
+  },
+  {
+    $project: {
+      _id: 0,
+      borrow_id: 1,
+      user_id: 1,
+      book_id: 1,
+      days_held: 1,
+      overdue_days: 1,
+      calculated_late_fee: 1
+    }
+  }
+]);
