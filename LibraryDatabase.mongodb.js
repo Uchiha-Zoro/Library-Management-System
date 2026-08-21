@@ -128,8 +128,8 @@ function borrowBook(borrow_id, user_id, book_id) {
   const session = db.getMongo().startSession();
   try {
     session.startTransaction();
-    const booksColl = session.getDatabase("library_management_system").books;
-    const borrowColl = session.getDatabase("library_management_system").borrow_records;
+    const booksColl = session.getDatabase("Library").books;
+    const borrowColl = session.getDatabase("Library").borrow_records;
     const bookUpdate = booksColl.findOneAndUpdate(
       { book_id: book_id, available_copies: { $gt: 0 } },
       { $inc: { available_copies: -1 } },
@@ -197,3 +197,46 @@ db.borrow_records.aggregate([
     }
   }
 ]);
+
+function returnBook(borrow_id) {
+  const session = db.getMongo().startSession();
+  try {
+    session.startTransaction();
+    const db1 = session.getDatabase("Library");
+    const borrowColl = db1.borrow_records;
+    const booksColl = db1.books;
+ 
+    const record = borrowColl.findOne({ borrow_id: borrow_id, status: "borrowed" });
+    if (!record) throw new Error("Active borrow record not found.");
+ 
+    const returnDate = new Date();
+    const msPerDay = 1000 * 60 * 60 * 24;
+    const daysHeld = Math.floor((returnDate - record.borrow_date) / msPerDay);
+    const overdueDays = Math.max(daysHeld - 30, 0);
+    const lateFee = overdueDays * 20;
+ 
+    borrowColl.updateOne(
+      { borrow_id: borrow_id },
+      {
+        $set: {
+          status: "returned",
+          return_date: returnDate,
+          late_fee: lateFee
+        }
+      }
+    );
+ 
+    booksColl.updateOne(
+      { book_id: record.book_id },
+      { $inc: { available_copies: 1 } }
+    );
+ 
+    session.commitTransaction();
+    print(`Book returned. Days held: ${daysHeld}, Late fee: ₹${lateFee}`);
+  } catch (err) {
+    session.abortTransaction();
+    print(`Return failed: ${err.message}`);
+  } finally {
+    session.endSession();
+  }
+}
