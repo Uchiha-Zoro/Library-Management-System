@@ -111,6 +111,41 @@ use("Library");
 // db.borrow_records.findOne({ borrow_id: "BR3002" });
  
  
+// 4. SALES_TRANSACTIONS COLLECTION - via purchaseBook()
+ 
+// ---- Purchase a book ----
+// purchaseBook("TXN4002", "U2007", "BK1003");
+ 
+// ---- Read: all transactions ----
+// db.sales_transactions.find();
+ 
+// ---- Read: only completed purchases ----
+// db.sales_transactions.find({ payment_status: "completed" });
+ 
+// ---- Read: a user's purchase history with book titles ----
+// db.sales_transactions.aggregate([
+//   { $match: { user_id: "U2007" } },
+//   {
+//     $lookup: {
+//       from: "books",
+//       localField: "book_id",
+//       foreignField: "book_id",
+//       as: "book_details"
+//     }
+//   },
+//   { $unwind: "$book_details" },
+//   { $project: { transaction_id: 1, amount: 1, payment_status: 1, transaction_date: 1, "book_details.title": 1 } }
+// ]);
+ 
+// ---- Total revenue from completed sales ----
+// db.sales_transactions.aggregate([
+//   { $match: { payment_status: "completed" } },
+//   { $group: { _id: null, total_revenue: { $sum: "$amount" } } }
+// ]);
+ 
+// ---- Try purchasing a book that's NOT for sale (should fail cleanly) ----
+// purchaseBook("TXN4003", "U2006", "BK002");
+ 
 
 
 
