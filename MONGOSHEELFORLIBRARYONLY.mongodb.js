@@ -148,5 +148,19 @@ use("Library");
  
 
 
+// 5. QUICK SANITY CHECKS
+
+ 
+// print("---- Books ----");
+// db.books.find().forEach(printjson);
+ 
+// print("---- Users ----");
+// db.users.find().forEach(printjson);
+ 
+// print("---- Borrow Records ----");
+// db.borrow_records.find().forEach(printjson);
+ 
+// print("---- Sales Transactions ----");
+// db.sales_transactions.find().forEach(printjson);
 
 
