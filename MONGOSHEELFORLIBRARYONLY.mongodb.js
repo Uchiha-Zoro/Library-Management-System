@@ -40,6 +40,35 @@ use("Library");
 // db.books.deleteOne({ book_id: "BK1003" });
  
  
+// 2. USERS COLLECTION - CRUD examples
+ 
+// ---- Create ----
+// db.users.insertOne({
+//   user_id: "U2005",
+//   name: "Test User",
+//   email: "testuser@example.com"
+// });
+ 
+// db.users.insertMany([
+//   { user_id: "U2006", name: "Uzumaki Naruto", email: "naruto@example.com" },
+//   { user_id: "U2007", name: "Uchiha Sasuke", email: "sasuke@example.com" }
+// ]);
+ 
+// ---- Read ----
+// db.users.find();
+// db.users.findOne({ user_id: "U001" });
+// db.users.find({ email: /example\.com$/ });   
+ 
+// ---- Update ----
+// db.users.updateOne(
+//   { user_id: "U2005" },
+//   { $set: { name: "Updated Name" } }
+// );
+ 
+// ---- Delete ----
+// db.users.deleteOne({ user_id: "U2005" });
+ 
+ 
 
 
 
