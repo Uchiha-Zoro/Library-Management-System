@@ -1,20 +1,27 @@
-use('Library');
+use("Library");
 
 db.createCollection("books", {
   validator: {
     $jsonSchema: {
       bsonType: "object",
-      required: ["book_id", "title", "author", "available_copies", "is_for_sale", "purchase_price"],
+      required: [
+        "book_id",
+        "title",
+        "author",
+        "available_copies",
+        "is_for_sale",
+        "purchase_price",
+      ],
       properties: {
         book_id: { bsonType: "string", description: "Unique book identifier" },
         title: { bsonType: "string" },
         author: { bsonType: "string" },
         available_copies: { bsonType: "int", minimum: 0 },
         is_for_sale: { bsonType: "bool" },
-        purchase_price: { bsonType: ["double", "int"], minimum: 0 }
-      }
-    }
-  }
+        purchase_price: { bsonType: ["double", "int"], minimum: 0 },
+      },
+    },
+  },
 });
 db.books.createIndex({ book_id: 1 }, { unique: true });
 
@@ -26,10 +33,10 @@ db.createCollection("users", {
       properties: {
         user_id: { bsonType: "string" },
         name: { bsonType: "string" },
-        email: { bsonType: "string", pattern: "^.+@.+\\..+$" }
-      }
-    }
-  }
+        email: { bsonType: "string", pattern: "^.+@.+\\..+$" },
+      },
+    },
+  },
 });
 db.users.createIndex({ user_id: 1 }, { unique: true });
 db.users.createIndex({ email: 1 }, { unique: true });
@@ -38,7 +45,14 @@ db.createCollection("borrow_records", {
   validator: {
     $jsonSchema: {
       bsonType: "object",
-      required: ["borrow_id", "user_id", "book_id", "borrow_date", "status", "late_fee"],
+      required: [
+        "borrow_id",
+        "user_id",
+        "book_id",
+        "borrow_date",
+        "status",
+        "late_fee",
+      ],
       properties: {
         borrow_id: { bsonType: "string" },
         user_id: { bsonType: "string" },
@@ -46,10 +60,10 @@ db.createCollection("borrow_records", {
         borrow_date: { bsonType: "date" },
         return_date: { bsonType: ["date", "null"] },
         status: { enum: ["borrowed", "returned"] },
-        late_fee: { bsonType: ["double", "int"], minimum: 0 }
-      }
-    }
-  }
+        late_fee: { bsonType: ["double", "int"], minimum: 0 },
+      },
+    },
+  },
 });
 db.borrow_records.createIndex({ borrow_id: 1 }, { unique: true });
 db.borrow_records.createIndex({ user_id: 1, status: 1 });
@@ -59,17 +73,24 @@ db.createCollection("sales_transactions", {
   validator: {
     $jsonSchema: {
       bsonType: "object",
-      required: ["transaction_id", "user_id", "book_id", "amount", "payment_status", "transaction_date"],
+      required: [
+        "transaction_id",
+        "user_id",
+        "book_id",
+        "amount",
+        "payment_status",
+        "transaction_date",
+      ],
       properties: {
         transaction_id: { bsonType: "string" },
         user_id: { bsonType: "string" },
         book_id: { bsonType: "string" },
         amount: { bsonType: ["double", "int"], minimum: 0 },
         payment_status: { enum: ["pending", "completed", "failed"] },
-        transaction_date: { bsonType: "date" }
-      }
-    }
-  }
+        transaction_date: { bsonType: "date" },
+      },
+    },
+  },
 });
 db.sales_transactions.createIndex({ transaction_id: 1 }, { unique: true });
 db.sales_transactions.createIndex({ user_id: 1 });
@@ -81,7 +102,7 @@ db.books.insertMany([
     author: "Echiro Oda",
     available_copies: 5,
     is_for_sale: true,
-    purchase_price: 650
+    purchase_price: 650,
   },
   {
     book_id: "BK002",
@@ -89,7 +110,7 @@ db.books.insertMany([
     author: "Sun Tzu",
     available_copies: 4,
     is_for_sale: true,
-    purchase_price: 760
+    purchase_price: 760,
   },
   {
     book_id: "BK003",
@@ -97,36 +118,36 @@ db.books.insertMany([
     author: "Chnakya",
     available_copies: 2,
     is_for_sale: false,
-    purchase_price: 0
-  }
+    purchase_price: 0,
+  },
 ]);
- 
+
 db.users.insertMany([
   {
     user_id: "U001",
     name: "Vansh",
-    email: "vp@example.com"
+    email: "vp@example.com",
   },
   {
     user_id: "U002",
     name: "Smit",
-    email: "sm@example.com"
+    email: "sm@example.com",
   },
   {
     user_id: "U003",
     name: "Vaibhav",
-    email: "vb@example.com"
+    email: "vb@example.com",
   },
   {
     user_id: "U004",
     name: "Zoro_Roronoa",
-    email: "zr@example.com"
+    email: "zr@example.com",
   },
   {
     user_id: "U005",
     name: "Sosuke_Aizen",
-    email: "sa@example.com"
-  }
+    email: "sa@example.com",
+  },
 ]);
 
 function borrowBook(borrow_id, user_id, book_id) {
@@ -138,13 +159,13 @@ function borrowBook(borrow_id, user_id, book_id) {
     const bookUpdate = booksColl.findOneAndUpdate(
       { book_id: book_id, available_copies: { $gt: 0 } },
       { $inc: { available_copies: -1 } },
-      { returnDocument: "after" }
+      { returnDocument: "after" },
     );
- 
+
     if (!bookUpdate) {
       throw new Error("Book unavailable for borrowing (no copies left).");
     }
- 
+
     borrowColl.insertOne({
       borrow_id: borrow_id,
       user_id: user_id,
@@ -152,9 +173,9 @@ function borrowBook(borrow_id, user_id, book_id) {
       borrow_date: new Date(),
       return_date: null,
       status: "borrowed",
-      late_fee: 0
+      late_fee: 0,
     });
- 
+
     session.commitTransaction();
     print(`Book ${book_id} borrowed successfully by ${user_id}.`);
   } catch (err) {
@@ -173,22 +194,22 @@ db.borrow_records.aggregate([
         $dateDiff: {
           startDate: "$borrow_date",
           endDate: "$$NOW",
-          unit: "day"
-        }
-      }
-    }
+          unit: "day",
+        },
+      },
+    },
   },
   {
     $addFields: {
       overdue_days: {
-        $max: [ { $subtract: ["$days_held", 30] }, 0 ]
-      }
-    }
+        $max: [{ $subtract: ["$days_held", 30] }, 0],
+      },
+    },
   },
   {
     $addFields: {
-      calculated_late_fee: { $multiply: ["$overdue_days", 20] }
-    }
+      calculated_late_fee: { $multiply: ["$overdue_days", 20] },
+    },
   },
   {
     $project: {
@@ -198,9 +219,9 @@ db.borrow_records.aggregate([
       book_id: 1,
       days_held: 1,
       overdue_days: 1,
-      calculated_late_fee: 1
-    }
-  }
+      calculated_late_fee: 1,
+    },
+  },
 ]);
 
 function returnBook(borrow_id) {
@@ -210,32 +231,35 @@ function returnBook(borrow_id) {
     const db1 = session.getDatabase("Library");
     const borrowColl = db1.borrow_records;
     const booksColl = db1.books;
- 
-    const record = borrowColl.findOne({ borrow_id: borrow_id, status: "borrowed" });
+
+    const record = borrowColl.findOne({
+      borrow_id: borrow_id,
+      status: "borrowed",
+    });
     if (!record) throw new Error("Active borrow record not found.");
- 
+
     const returnDate = new Date();
     const msPerDay = 1000 * 60 * 60 * 24;
     const daysHeld = Math.floor((returnDate - record.borrow_date) / msPerDay);
     const overdueDays = Math.max(daysHeld - 30, 0);
     const lateFee = overdueDays * 20;
- 
+
     borrowColl.updateOne(
       { borrow_id: borrow_id },
       {
         $set: {
           status: "returned",
           return_date: returnDate,
-          late_fee: lateFee
-        }
-      }
+          late_fee: lateFee,
+        },
+      },
     );
- 
+
     booksColl.updateOne(
       { book_id: record.book_id },
-      { $inc: { available_copies: 1 } }
+      { $inc: { available_copies: 1 } },
     );
- 
+
     session.commitTransaction();
     print(`Book returned. Days held: ${daysHeld}, Late fee: ₹${lateFee}`);
   } catch (err) {
@@ -251,9 +275,9 @@ function purchaseBook(transaction_id, user_id, book_id) {
   try {
     session.startTransaction({
       readConcern: { level: "snapshot" },
-      writeConcern: { w: "majority" }
+      writeConcern: { w: "majority" },
     });
- 
+
     const db1 = session.getDatabase("Library");
     const booksColl = db1.books;
     const salesColl = db1.sales_transactions;
@@ -261,9 +285,9 @@ function purchaseBook(transaction_id, user_id, book_id) {
     const book = booksColl.findOne({
       book_id: book_id,
       is_for_sale: true,
-      available_copies: { $gt: 0 }
+      available_copies: { $gt: 0 },
     });
- 
+
     if (!book) {
       throw new Error("Book not available for sale or out of stock.");
     }
@@ -274,33 +298,36 @@ function purchaseBook(transaction_id, user_id, book_id) {
       book_id: book_id,
       amount: book.purchase_price,
       payment_status: "pending",
-      transaction_date: new Date()
-    }); 
-
+      transaction_date: new Date(),
+    });
 
     const paymentSuccessful = true;
- 
+
     if (paymentSuccessful) {
       const inventoryResult = booksColl.updateOne(
         { book_id: book_id, available_copies: { $gt: 0 } },
-        { $inc: { available_copies: -1 } }
+        { $inc: { available_copies: -1 } },
       );
- 
+
       if (inventoryResult.modifiedCount === 0) {
-        throw new Error("Inventory changed concurrently; rolling back transaction.");
+        throw new Error(
+          "Inventory changed concurrently; rolling back transaction.",
+        );
       }
- 
+
       salesColl.updateOne(
         { transaction_id: transaction_id },
-        { $set: { payment_status: "completed" } }
+        { $set: { payment_status: "completed" } },
       );
- 
+
       session.commitTransaction();
-      print(`Purchase completed. Transaction ${transaction_id} for book ${book_id}.`);
+      print(
+        `Purchase completed. Transaction ${transaction_id} for book ${book_id}.`,
+      );
     } else {
       salesColl.updateOne(
         { transaction_id: transaction_id },
-        { $set: { payment_status: "failed" } }
+        { $set: { payment_status: "failed" } },
       );
       session.commitTransaction(); // commit the "failed" status record, no inventory change
       print(`Payment failed for transaction ${transaction_id}.`);
@@ -312,8 +339,3 @@ function purchaseBook(transaction_id, user_id, book_id) {
     session.endSession();
   }
 }
-
-    
- 
-
-
